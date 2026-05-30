@@ -2,6 +2,8 @@
 
 **A friendly command-line interface for Google Ads, built with CLI-Anything.**
 
+> **Note:** This is not the official google-ads-python library — it is a CLI built on top of it. The official library lives at [googleads/google-ads-python](https://github.com/googleads/google-ads-python). This repo wraps that library in a terminal interface so you can use the Google Ads API without writing Python.
+
 Manage Google Ads campaigns, budgets, keywords, and reports straight from your terminal — no web UI required. Whether you're scripting campaign automation, pulling performance data into pipelines, or just prefer the command line, `google-ads-cli` gives you a clean interface to the full Google Ads API.
 
 ---
