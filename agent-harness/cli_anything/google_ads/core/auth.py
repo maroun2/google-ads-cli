@@ -100,7 +100,8 @@ def test_credentials(config_path: Optional[str] = None, version: str = "v24") ->
 def run_oauth2_flow(client_id: str, client_secret: str) -> str:
     """Run OAuth2 installed-app flow and return refresh token.
 
-    Opens browser for user consent, then returns the refresh token.
+    Prints an authorization URL for the user to open in any browser,
+    then prompts for the code — works on headless/remote servers.
     """
     from google_auth_oauthlib.flow import InstalledAppFlow
 
@@ -117,9 +118,23 @@ def run_oauth2_flow(client_id: str, client_secret: str) -> str:
     flow = InstalledAppFlow.from_client_config(
         client_config, scopes=[GOOGLE_ADS_SCOPE]
     )
-    credentials = flow.run_local_server(port=0, prompt="consent",
-                                        authorization_prompt_message="")
-    return credentials.refresh_token
+
+    # Generate the URL without starting a local server
+    flow.redirect_uri = "urn:ietf:wg:oauth:2.0:oob"
+    auth_url, _ = flow.authorization_url(
+        prompt="consent",
+        access_type="offline",
+    )
+
+    print()
+    print("  Open this URL in your browser (any device):")
+    print()
+    print(f"  {auth_url}")
+    print()
+    code = _prompt("  Paste the authorization code here: ").strip()
+
+    flow.fetch_token(code=code)
+    return flow.credentials.refresh_token
 
 
 def interactive_setup(config_path: Optional[str] = None) -> dict:
@@ -140,9 +155,7 @@ def interactive_setup(config_path: Optional[str] = None) -> dict:
     client_secret = _prompt("  OAuth2 client secret: ").strip()
 
     print()
-    print("  Opening browser for Google account authorization...")
-    print("  (If browser doesn't open, copy the URL shown below)")
-    print()
+    print("  Next: authorize via your browser (any device — no browser needed here).")
 
     try:
         refresh_token = run_oauth2_flow(client_id, client_secret)
